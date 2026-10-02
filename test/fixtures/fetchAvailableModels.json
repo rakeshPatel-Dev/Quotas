@@ -1,0 +1,64 @@
+{
+  "defaultAgentModelId": "claude-sonnet-4-5",
+  "models": {
+    "claude-sonnet-4-5": {
+      "displayName": "Claude Sonnet 4.5",
+      "model": "MODEL_CLAUDE_SONNET_4_5",
+      "modelProvider": "ANTHROPIC",
+      "recommended": true,
+      "quotaInfo": {
+        "remainingFraction": 0.62,
+        "resetTime": "2026-10-03T04:00:00Z",
+        "isExhausted": false
+      }
+    },
+    "gemini-3-pro": {
+      "displayName": "Gemini 3 Pro",
+      "model": "MODEL_GEMINI_3_PRO",
+      "recommended": true,
+      "quotaInfo": {
+        "remainingFraction": 0.04,
+        "resetTime": "2026-10-02T22:30:00Z",
+        "isExhausted": false
+      }
+    },
+    "gemini-3-flash": {
+      "displayName": "Gemini 3 Flash",
+      "model": "MODEL_GEMINI_3_FLASH",
+      "quotaInfo": {
+        "remainingFraction": 0,
+        "resetTime": "2026-10-02T20:00:00Z",
+        "isExhausted": true
+      }
+    },
+    "claude-opus-4-1-thinking": {
+      "label": "Claude Opus 4.1 Thinking",
+      "quotaInfo": {
+        "remainingFraction": 1
+      }
+    },
+    "chat_session_scratch": {
+      "displayName": "Internal chat model",
+      "quotaInfo": { "remainingFraction": 1 }
+    },
+    "tab_autocomplete": {
+      "displayName": "Tab autocomplete",
+      "quotaInfo": { "remainingFraction": 1 }
+    },
+    "gemini-2.5-flash-lite": {
+      "displayName": "Gemini 2.5 Flash Lite",
+      "quotaInfo": { "remainingFraction": 1 }
+    },
+    "imagen-4-generation": {
+      "displayName": "Imagen 4",
+      "quotaInfo": { "remainingFraction": 1 }
+    },
+    "rev-preview-model": {
+      "displayName": "Experimental",
+      "quotaInfo": { "remainingFraction": 0.5 }
+    },
+    "gemini-3-pro-noquota": {
+      "displayName": "Gemini 3 Pro (no quota reported)"
+    }
+  }
+}

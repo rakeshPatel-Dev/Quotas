@@ -1,0 +1,28 @@
+{
+  "models": {
+    "claude-sonnet-4-6": {
+      "displayName": "Claude Sonnet 4.6",
+      "quotaInfo": { "remainingFraction": 0.571697, "resetTime": "2026-10-09T05:50:03Z" }
+    },
+    "claude-opus-4-6-thinking": {
+      "displayName": "Claude Opus 4.6 (Thinking)",
+      "quotaInfo": { "remainingFraction": 0.571697, "resetTime": "2026-10-09T05:50:03Z" }
+    },
+    "gpt-oss-120b-medium": {
+      "displayName": "GPT-OSS 120B (Medium)",
+      "quotaInfo": { "remainingFraction": 0.5716971, "resetTime": "2026-10-09T05:50:03Z" }
+    },
+    "gemini-3.1-pro-high": {
+      "displayName": "Gemini 3.1 Pro (High)",
+      "quotaInfo": { "remainingFraction": 1, "resetTime": "2026-10-09T16:06:24Z" }
+    },
+    "gemini-3.1-pro-low": {
+      "displayName": "Gemini 3.1 Pro (High)",
+      "quotaInfo": { "remainingFraction": 1, "resetTime": "2026-10-09T16:06:24Z" }
+    },
+    "gemini-3-flash": {
+      "displayName": "Gemini 3 Flash",
+      "quotaInfo": { "remainingFraction": 1, "resetTime": "2026-10-09T16:06:24Z" }
+    }
+  }
+}

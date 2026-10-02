@@ -1,0 +1,41 @@
+{
+  "models": {
+    "claude-sonnet-4-6": {
+      "displayName": "Claude Sonnet 4.6",
+      "recommended": true,
+      "quotaInfo": { "resetTime": "2026-10-09T05:50:03Z" }
+    },
+    "claude-opus-4-6-thinking": {
+      "displayName": "Claude Opus 4.6 (Thinking)",
+      "quotaInfo": { "resetTime": "2026-10-09T05:50:03Z" }
+    },
+    "gpt-oss-120b-medium": {
+      "displayName": "GPT-OSS 120B (Medium)",
+      "quotaInfo": { "resetTime": "2026-10-09T05:50:03Z" }
+    },
+    "gemini-3.1-pro-high": {
+      "displayName": "Gemini 3.1 Pro (High)",
+      "quotaInfo": { "resetTime": "2026-10-09T16:06:24Z" }
+    },
+    "gemini-3-flash": {
+      "displayName": "Gemini 3 Flash",
+      "quotaInfo": { "resetTime": "2026-10-09T16:06:24Z" }
+    },
+    "gemini-3.1-flash-image": {
+      "displayName": "Gemini 3.1 Flash Image",
+      "quotaInfo": { "resetTime": "2026-10-09T16:06:24Z" }
+    },
+    "gemini-2.5-flash-lite": {
+      "displayName": "Gemini 3.5 Flash Lite",
+      "quotaInfo": { "resetTime": "2026-10-09T16:06:24Z" }
+    },
+    "chat_20706": {
+      "displayName": "Internal",
+      "quotaInfo": { "remainingFraction": 1 }
+    },
+    "tab_flash_lite_preview": {
+      "displayName": "Tab autocomplete",
+      "quotaInfo": { "remainingFraction": 1 }
+    }
+  }
+}

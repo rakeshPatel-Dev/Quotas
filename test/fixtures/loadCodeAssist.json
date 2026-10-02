@@ -1,0 +1,15 @@
+{
+  "codeAssistEnabled": true,
+  "planInfo": {
+    "monthlyPromptCredits": 500,
+    "planType": "premium"
+  },
+  "availablePromptCredits": 450,
+  "cloudaicompanionProject": "rising-ember-123",
+  "currentTier": { "id": "free-tier", "name": "Free" },
+  "paidTier": { "id": "legacy-tier" },
+  "allowedTiers": [
+    { "id": "legacy-tier", "isDefault": true },
+    { "id": "free-tier", "isDefault": false }
+  ]
+}
