@@ -1,0 +1,21 @@
+node_modules/
+dist/
+out/
+release/
+
+# Generated from public/quotas.svg by `npm run icon`.
+build/
+resources/
+
+# Never commit account data: refresh tokens live here (encrypted, still private).
+*.accounts.json
+*.accounts.json.bak
+*.accounts.json.tmp
+dev.key
+*.log
+.env
+.env.local
+.env.*.local
+
+# Raw API responses captured for parser debugging may contain account data.
+samples-private/

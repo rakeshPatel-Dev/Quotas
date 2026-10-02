@@ -1,0 +1,96 @@
+{
+  "name": "antigravity-quota-tracker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Multi-account Antigravity quota tracker",
+  "author": {
+    "name": "Patel",
+    "email": "patel@localhost"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "tsx src/cli.ts",
+    "app": "electron .",
+    "build": "vite build && esbuild src/preload/index.ts --bundle --platform=node --target=chrome128 --format=cjs --external:electron --outfile=dist/preload/index.cjs && tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.renderer.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "screenshot": "npm run build && ANTIGRAVITY_TRACKER_SCREENSHOT=shot.png electron .",
+    "icon": "electron scripts/rasterizeIcon.mjs",
+    "pack": "npm run build && electron-builder --dir",
+    "dist": "npm run build && electron-builder",
+    "dist:deb": "npm run build && electron-builder --linux deb",
+    "app:dev": "ANTIGRAVITY_TRACKER_DEV=1 electron .",
+    "dist:appimage": "npm run build && electron-builder --linux AppImage"
+  },
+  "dependencies": {
+    "p-limit": "^6.2.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
+    "@types/node": "^22.10.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^4.7.0",
+    "autoprefixer": "^10.6.1",
+    "electron": "^44.5.1",
+    "electron-builder": "^26.15.3",
+    "esbuild": "^0.25.0",
+    "postcss": "^8.5.28",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "tailwindcss": "^3.4.19",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vite": "^5.4.21",
+    "vitest": "^2.1.8",
+    "zustand": "^5.0.15"
+  },
+  "main": "dist/main/index.js",
+  "build": {
+    "appId": "com.patel.antigravityquotatracker",
+    "productName": "Antigravity Quotas",
+    "asar": true,
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "resources/**/*",
+      "package.json"
+    ],
+    "extraMetadata": {
+      "main": "dist/main/index.js"
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.png",
+      "category": "Utility",
+      "synopsis": "Multi-account Antigravity quota tracker",
+      "desktop": {
+        "entry": {
+          "Name": "Antigravity Quotas",
+          "Comment": "Multi-account Antigravity quota tracker",
+          "Categories": "Utility;",
+          "StartupWMClass": "Antigravity Quotas",
+          "StartupNotify": "true"
+        }
+      },
+      "maintainer": "Patel <patel@localhost>"
+    }
+  },
+  "homepage": "https://github.com/patel/antigravity-quota-tracker"
+}
