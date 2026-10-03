@@ -1,0 +1,107 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  # Build one artifact per OS/arch on a native runner.
+  # macOS .dmg cannot be cross-compiled from Linux, so a matrix is required.
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS (x64)
+            os: macos-15-intel
+            args: --mac dmg --x64
+          - name: macOS (arm64)
+            os: macos-15
+            args: --mac dmg --arm64
+          - name: Windows (x64)
+            os: windows-latest
+            args: --win nsis --x64
+          - name: Linux (x64)
+            os: ubuntu-24.04
+            args: --linux AppImage deb rpm --x64
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # electron-builder shells out to rpmbuild for the rpm target and does not
+      # bundle it. The hosted image ships it, but guard so image drift fails loudly.
+      - name: Ensure rpmbuild is available
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          if ! command -v rpmbuild >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install --no-install-recommends -y rpm
+          fi
+          rpmbuild --version
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Build and package
+        run: npm run build && npx electron-builder ${{ matrix.args }} --publish never
+
+      # Ship only the installers, not the unpacked app dirs.
+      - name: Collect installers
+        shell: bash
+        run: |
+          mkdir -p dist-installers
+          shopt -s nullglob nocaseglob
+          for f in release/*.dmg release/*.exe release/*.msi release/*.AppImage \
+                   release/*.deb release/*.rpm release/*.blockmap; do
+            [ -f "$f" ] || continue
+            cp "$f" dist-installers/
+          done
+          ls -la dist-installers
+
+      - name: Upload installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }}
+          path: dist-installers/
+          if-no-files-found: error
+
+  # Collect every matrix artifact into one GitHub Release.
+  release:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: List release contents
+        run: ls -la artifacts
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*
+          generate_release_notes: true
+          fail_on_unmatched_files: true
