@@ -5,9 +5,13 @@
 | Script | What it does |
 | --- | --- |
 | `npm run build` | Builds the renderer (Vite), bundles the preload (esbuild, CJS), compiles main + shared (tsc). |
-| `npm run dist` | `build` then electron-builder, producing an AppImage. |
-| `npm run dist:appimage` | Same, but explicitly AppImage-only. |
-| `npm run dist:deb` | Builds a `.deb`. Fails on machines without `libcrypt.so.1`; see below. |
+| `npm run dist` | `build` then electron-builder for the host platform. |
+| `npm run dist:linux` | AppImage + deb + rpm. |
+| `npm run dist:mac` | dmg, x64 and arm64. Requires macOS. |
+| `npm run dist:win` | NSIS `.exe` installer. |
+| `npm run dist:all` | Every target above, for the host platform. |
+| `npm run dist:appimage` | Same as `dist:linux` but AppImage-only. |
+| `npm run dist:deb` | Builds a `.deb` only. Fails without `libcrypt.so.1`; see below. |
 | `npm run pack` | `build` then `electron-builder --dir`, an unpacked directory. Fast, no installer. |
 | `npm run icon` | Regenerates `build/icon.png`. |
 | `npm run typecheck` | Typechecks main/shared and the renderer separately. |
@@ -48,9 +52,43 @@ so upgrading the app never touches your tokens.
 
 ### Current platform support
 
-Linux x64. The AppImage is the tested artifact. A `.deb` builds on a machine
-that has `libcrypt.so.1` available to Ruby, which electron-builder's bundled
-`fpm` needs; several current distros no longer ship it.
+Targets macOS (x64 + arm64), Windows x64 and Linux x64. `.dmg` requires a macOS
+host; everything else builds anywhere the toolchain allows.
+
+On Linux, `.deb` and `.rpm` shell out to electron-builder's bundled Ruby `fpm`
+and to `rpmbuild` respectively:
+
+- `fpm` needs `libcrypt.so.1`. Debian/Ubuntu have it; Arch ships only
+  `libcrypt.so.2`, so `.deb` fails there with `error while loading shared
+  libraries`. That is a packaging-tool limitation, not an app fault.
+- `rpm` needs `rpmbuild` (`apt install rpm`). GitHub's Ubuntu runners include
+  it, and the release workflow guards for it anyway.
+
+The AppImage has no such dependencies, which makes it the reliable local target
+and the reason Linux is covered three ways.
+
+### Release automation
+
+`.github/workflows/release.yml` builds on native runners — a `.dmg` cannot be
+cross-compiled from Linux — then collects every artifact into one GitHub Release:
+
+| Runner | Artifact |
+| --- | --- |
+| `macos-15-intel` | dmg x64 |
+| `macos-15` | dmg arm64 |
+| `windows-latest` | NSIS exe |
+| `ubuntu-24.04` | AppImage, deb, rpm |
+
+Trigger it by pushing a `v*` tag:
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+`workflow_dispatch` also runs it manually, but only publishes a Release when the
+ref is a tag. Labels are pinned deliberately: `macos-13` has been retired, and
+`ubuntu-latest` moves to 26.04 in November 2026.
 
 ### Before publishing anywhere
 
@@ -62,7 +100,13 @@ metadata:
 - `build.linux.maintainer`
 
 They exist because electron-builder refuses to build a `.deb` without a
-maintainer address. Replace them with real values before distributing.
+maintainer address. `homepage` and `repository` now point at
+`rakeshPatel-Dev/Quotas`; `author.email` is still `patel@localhost`.
+
+Nothing is signed or notarized. macOS builds want a Developer ID certificate and
+`notarize` before distribution; Windows builds want an Authenticode certificate
+or SmartScreen will keep warning users. See the security notes in
+[security.md](security.md).
 
 ## The icon
 

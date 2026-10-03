@@ -11,19 +11,31 @@ to the next reset.
 
 ## Install
 
-Grab the AppImage and run it:
+Download the build for your platform from the
+[GitHub Releases page](https://github.com/rakeshPatel-Dev/Quotas/releases). Every
+release ships all of the following:
 
-```bash
-chmod +x Antigravity\ Quotas-*.AppImage
-./Antigravity\ Quotas-*.AppImage
-```
+| Platform | File | Install |
+| --- | --- | --- |
+| macOS (Apple Silicon) | `Antigravity Quotas-<version>-arm64.dmg` | open the `.dmg`, drag to Applications |
+| macOS (Intel) | `Antigravity Quotas-<version>.dmg` | open the `.dmg`, drag to Applications |
+| Windows | `Antigravity Quotas Setup <version>.exe` | run it, choose install location |
+| Debian / Ubuntu | `antigravity-quota-tracker_<version>_amd64.deb` | `sudo apt install ./<file>.deb` |
+| Fedora / openSUSE | `antigravity-quota-tracker-<version>.x86_64.rpm` | `sudo dnf install ./<file>.rpm` |
+| Any Linux x64 | `Antigravity Quotas-<version>.AppImage` | `chmod +x` then run it |
+
+Linux packages install a menu entry and icon. The AppImage is portable and
+registers those on first run.
 
 Then click **Add account** and sign in with Google in your browser. Only the
-refresh token is stored, encrypted.
+refresh token is stored, encrypted. Existing accounts are picked up automatically
+from `~/.antigravity-quota-tracker/`.
 
-Existing accounts are picked up automatically from `~/.antigravity-quota-tracker/`.
+> **These builds are unsigned.** macOS will refuse to open the `.dmg` until you
+> right-click it and choose **Open**, and Windows SmartScreen will warn on first
+> run. There is no signing certificate behind them.
 
-Full setup, including desktop-menu integration and running from source:
+Per-platform steps, including making the AppImage menu-launchable:
 **[docs/getting-started.md](docs/getting-started.md)**
 
 ## Build it yourself
@@ -32,10 +44,22 @@ Requires Node 20+.
 
 ```bash
 npm install
-npm run dist          # -> release/Antigravity Quotas-<version>.AppImage
+npm run icon      # generate build/icon.png (once)
+npm run dist      # build for the current platform -> release/
 ```
 
-Linux x64 is the tested target. Details and troubleshooting:
+Targets the host platform by default. To build for others:
+
+```bash
+npm run dist:linux   # AppImage + deb + rpm
+npm run dist:mac     # dmg (x64 + arm64) - requires macOS
+npm run dist:win     # NSIS exe
+npm run dist:all     # all three
+```
+
+macOS `.dmg` cannot be built off macOS. Linux `.deb` and `.rpm` need
+`rpmbuild`, and electron-builder's bundled Ruby needs `libcrypt.so.1` (present on
+Debian/Ubuntu, absent on Arch). Details and troubleshooting:
 **[docs/building.md](docs/building.md)**
 
 ## Using it
@@ -146,7 +170,9 @@ Also: [`FINDINGS.md`](FINDINGS.md) (raw API observations) and
 
 - **The quota endpoint is internal and undocumented.** It can change or vanish
   without notice, and nothing here is guaranteed to keep working.
-- **No code signing.** The AppImage is unsigned, so some distributions warn.
+- **No code signing or notarization.** Every platform will warn on first run;
+  macOS additionally requires a right-click → Open. Building on a signing-enabled
+  machine is the only fix.
 - **Many accounts means many requests.** Polling is polite by default — three
   concurrent, ~4 minutes apart with jitter — but adding accounts multiplies
   traffic against Google's API.

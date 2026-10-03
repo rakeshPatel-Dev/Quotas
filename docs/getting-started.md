@@ -1,31 +1,55 @@
 # Getting started
 
-## Option A: use a prebuilt AppImage (no tooling)
+## Option A: install a prebuilt release
 
-1. Download `Antigravity Quotas-<version>.AppImage`.
-2. Make it executable:
+Get the files from the
+[GitHub Releases page](https://github.com/rakeshPatel-Dev/Quotas/releases). Pick
+the row that matches your platform. All builds are x64 except the Apple Silicon
+`.dmg`.
 
-   ```bash
-   chmod +x Antigravity\ Quotas-*.AppImage
-   ```
+### macOS
 
-3. Run it:
+Download the `.dmg` — `-arm64` for Apple Silicon, plain for Intel — open it, and
+drag **Antigravity Quotas** into Applications.
 
-   ```bash
-   ./Antigravity\ Quotas-*.AppImage
-   ```
+It is unsigned, so the first launch is blocked:
 
-4. Add an account with **Add account** in the top right. Your browser opens for
-   Google sign-in. The app stores only the refresh token, encrypted.
+> Right-click the app in Applications → **Open** → **Open** in the dialog.
 
-If your desktop environment offers "Open With" after download, pick it once and
-skip steps 2 and 3.
+Only needed once. `xattr -d com.apple.quarantine` on the app also works.
 
-### Make it launchable from your app menu
+### Windows
 
-The AppImage registers a `.desktop` entry and icon on first run. If your
-environment does not pick it up, copy the entry and icon out of the mounted
-AppImage:
+Download `Antigravity Quotas Setup <version>.exe` and run it. The installer
+offers a directory and installs per-user, so no administrator rights are needed.
+
+SmartScreen will warn on first run; choose **More info** → **Run anyway**.
+
+### Debian / Ubuntu
+
+```bash
+sudo apt install ./antigravity-quota-tracker_<version>_amd64.deb
+```
+
+Use `apt install ./file.deb` rather than `dpkg -i` so dependencies resolve.
+
+### Fedora / openSUSE
+
+```bash
+sudo dnf install ./antigravity-quota-tracker-<version>.x86_64.rpm
+```
+
+### Any Linux x64 (AppImage)
+
+Portable, nothing installed:
+
+```bash
+chmod +x Antigravity\ Quotas-*.AppImage
+./Antigravity\ Quotas-*.AppImage
+```
+
+The AppImage registers a `.desktop` entry and icon on first run. If your desktop
+environment does not pick it up, copy them out of the mounted image:
 
 ```bash
 APPIMAGE=./Antigravity\ Quotas-*.AppImage
@@ -36,6 +60,14 @@ sudo update-desktop-database /usr/share/applications 2>/dev/null || true
 rm -rf squashfs-root
 ```
 
+### First run
+
+Click **Add account** in the top right. Your browser opens for Google sign-in.
+Only the refresh token is stored, encrypted.
+
+Accounts are per-machine and live in `~/.antigravity-quota-tracker/`. Upgrading
+the app never touches them, so reinstalling is always safe.
+
 ## Option B: build it yourself
 
 You need Node 20 or newer.
@@ -43,12 +75,17 @@ You need Node 20 or newer.
 ```bash
 npm install
 npm run icon      # generate build/icon.png
-npm run dist      # produces release/Antigravity Quotas-<version>.AppImage
+npm run dist      # packages for whichever platform you are on -> release/
 ```
 
-If `npm run dist` reports a `.deb` failure about `libcrypt.so.1`, that is
-electron-builder's bundled Ruby, not your app. Build the AppImage on its own
-with `npm run dist:appimage`. See [building.md](building.md) for details.
+Per-platform scripts: `dist:linux` (AppImage + deb + rpm), `dist:mac`,
+`dist:win`, or `dist:all` for everything.
+
+A `.dmg` can only be produced on macOS. On Linux, `.deb` and `.rpm` additionally
+need `rpmbuild` installed, and electron-builder's bundled Ruby needs
+`libcrypt.so.1` — present on Debian/Ubuntu, absent on Arch, where a
+`libcrypt.so.1` failure is a packaging-tool problem, not an app one. See
+[building.md](building.md).
 
 ## Option C: run from source
 
@@ -79,8 +116,9 @@ npm run dev -- quota --all
 
 ## Requirements and limits
 
-- **Linux x64** for the current build. See [building.md](building.md) for other
-  platforms.
+- macOS (x64 or Apple Silicon), Windows x64, or Linux x64. Linux `.deb` and
+  `.rpm` additionally need `rpmbuild` on the build machine. See
+  [building.md](building.md).
 - A Google account that has used Antigravity. Accounts that have never run a
   model return no quota pools at all and will show as *unmetered*.
 - Network access to `accounts.google.com` (sign-in) and
