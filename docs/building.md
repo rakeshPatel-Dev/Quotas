@@ -121,7 +121,27 @@ with `REPLACE_WITH_YOUR_OWN_*` placeholders, and `assertOAuthConfigured()` throw
 on them, so an unconfigured build reports the real problem instead of failing at
 Google's consent screen with `invalid_client`.
 
-To issue one:
+### How the client reaches a release
+
+The client is **not committed.** GitHub push protection blocks any push whose
+diff contains a `GOCSPX-` string, and a secret in history cannot be withdrawn
+afterwards — it would need another force-push and rewrite. So:
+
+1. Add two repository secrets under **Settings → Secrets and variables →
+   Actions**:
+   - `ANTIGRAVITY_OAUTH_CLIENT_ID`
+   - `ANTIGRAVITY_OAUTH_CLIENT_SECRET`
+2. Tag a release. The workflow runs `scripts/bundleOAuthClient.mjs --require`,
+   which writes the values into `src/main/oauthClient.ts` on the runner before
+   electron-builder packages. `--require` exits non-zero if either secret is
+   absent, so a misconfigured run fails instead of publishing six installers
+   that cannot sign in.
+
+Locally, `npm run dist` runs the same script without `--require`; with a `.env`
+present it picks the values up from there, and with neither it leaves the
+placeholders and `assertOAuthConfigured()` catches it.
+
+To issue a client:
 
 1. Google Cloud Console → create or pick a project.
 2. Enable the **Cloud Code API** (`cloudcode.googleapis.com`).
@@ -130,12 +150,11 @@ To issue one:
    work: Google rejects loopback redirects for that type.
 5. Add the scopes listed in `oauthConfig.scopes`. Desktop clients need no
    registered redirect URI — any loopback port is allowed.
-6. Paste the id and secret into `BUNDLED_OAUTH_CLIENT` in
-   `src/main/oauthClient.ts`.
+6. Put the id and secret in the two Actions secrets.
 
-That client is shared by everyone who installs the app and lives in a public
-repository. Its quota and its revocation are yours to own; rotate it from the
-Cloud Console if it leaks. `npm test` covers the placeholder guard.
+Everyone who installs the app shares that one client, and its quota and
+revocation are yours to own. Rotate it from the Cloud Console if it leaks;
+nothing in the repository needs rewriting when you do.
 
 Nothing is signed or notarized. macOS builds want a Developer ID certificate and
 `notarize` before distribution; Windows builds want an Authenticode certificate

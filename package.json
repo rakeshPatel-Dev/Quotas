@@ -20,11 +20,16 @@
     "test:watch": "vitest",
     "screenshot": "npm run build && ANTIGRAVITY_TRACKER_SCREENSHOT=shot.png electron .",
     "icon": "electron scripts/rasterizeIcon.mjs",
+    "bundle-oauth-client": "node scripts/bundleOAuthClient.mjs",
     "pack": "npm run build && electron-builder --dir",
-    "dist": "npm run build && electron-builder",
-    "dist:deb": "npm run build && electron-builder --linux deb",
+    "dist": "npm run build && npm run bundle-oauth-client && electron-builder",
+    "dist:deb": "npm run build && npm run bundle-oauth-client && electron-builder --linux deb",
     "app:dev": "ANTIGRAVITY_TRACKER_DEV=1 electron .",
-    "dist:appimage": "npm run build && electron-builder --linux AppImage"
+    "dist:linux": "npm run build && npm run bundle-oauth-client && electron-builder --linux AppImage deb rpm",
+    "dist:mac": "npm run build && npm run bundle-oauth-client && electron-builder --mac dmg",
+    "dist:win": "npm run build && npm run bundle-oauth-client && electron-builder --win nsis",
+    "dist:all": "npm run build && npm run bundle-oauth-client && electron-builder -mwl",
+    "dist:appimage": "npm run build && npm run bundle-oauth-client && electron-builder --linux AppImage"
   },
   "dependencies": {
     "p-limit": "^6.2.0",
@@ -68,10 +73,53 @@
     "extraMetadata": {
       "main": "dist/main/index.js"
     },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": "build/icon.png",
+      "category": "public.app-category.utilities",
+      "darkModeSupport": true,
+      "hardenedRuntime": true
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true
+    },
     "linux": {
       "target": [
         {
           "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "rpm",
           "arch": [
             "x64"
           ]
@@ -92,5 +140,9 @@
       "maintainer": "Patel <patel@localhost>"
     }
   },
-  "homepage": "https://github.com/patel/antigravity-quota-tracker"
+  "homepage": "https://github.com/rakeshPatel-Dev/Quotas",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rakeshPatel-Dev/Quotas.git"
+  }
 }

@@ -24,9 +24,9 @@
  */
 export const BUNDLED_OAUTH_CLIENT = {
   // REPLACE_WITH_YOUR_OWN_CLIENT_ID
-  clientId: '',
+  clientId: 'REPLACE_WITH_YOUR_OWN_CLIENT_ID',
   // REPLACE_WITH_YOUR_OWN_CLIENT_SECRET
-  clientSecret: '',
+  clientSecret: 'REPLACE_WITH_YOUR_OWN_CLIENT_SECRET',
 } as const
 
 /** True when the placeholders above were never filled in. */

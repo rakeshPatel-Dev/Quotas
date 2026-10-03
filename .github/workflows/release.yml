@@ -61,6 +61,17 @@ jobs:
       - name: Test
         run: npm test
 
+      # The OAuth client is deliberately absent from the repository: GitHub push
+      # protection blocks any commit containing a `GOCSPX-` string, and a secret
+      # in history cannot be withdrawn. It is injected here from Actions secrets
+      # so the installers carry it while the repo never does. --require fails the
+      # build rather than shipping an app that cannot sign in.
+      - name: Inject OAuth client
+        env:
+          ANTIGRAVITY_OAUTH_CLIENT_ID: ${{ secrets.ANTIGRAVITY_OAUTH_CLIENT_ID }}
+          ANTIGRAVITY_OAUTH_CLIENT_SECRET: ${{ secrets.ANTIGRAVITY_OAUTH_CLIENT_SECRET }}
+        run: node scripts/bundleOAuthClient.mjs --require
+
       - name: Build and package
         run: npm run build && npx electron-builder ${{ matrix.args }} --publish never
 
