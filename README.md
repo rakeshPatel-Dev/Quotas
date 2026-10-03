@@ -62,46 +62,61 @@ macOS `.dmg` cannot be built off macOS. Linux `.deb` and `.rpm` need
 Debian/Ubuntu, absent on Arch). Details and troubleshooting:
 **[docs/building.md](docs/building.md)**
 
-## Using it
+## Everyday tasks
 
-The screen is a summary bar plus one card per account.
+Everything is done from the single window. No menus, no settings page, no
+configuration file.
+
+| You want to | Do this |
+| --- | --- |
+| Add your first account | **Add your first account** in the middle of the window |
+| Add another account | **Add account**, top right. Same account twice just updates it |
+| Stop tracking an account, keep it | **Pause** on its card. Resumes with **Resume** |
+| Delete an account for good | **Remove** on its card, then confirm. Cannot be undone |
+| Fix an expired sign-in | **Re-sign in** on the card, pick the same Google account |
+| Update one account now | **Refresh** on its card |
+| Update everything now | **Refresh all**, top right |
+| Find the most urgent account | Low-quota accounts are always pinned to the top |
+| Change the order of the rest | **Soonest / Lowest** toggle, top right |
+
+Each account is polled about every four minutes on its own schedule, with a
+random offset so accounts do not all hit Google at once. Nothing needs to stay
+open for that to happen.
+
+Step-by-step walkthrough, including what happens to your data when you remove an
+account: **[docs/using-the-app.md](docs/using-the-app.md)**
+
+## Reading a card
+
+```
+you@example.com  [Pro]
+  Claude + GPT-OSS · 3 models
+  ████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  4h 12m
+```
+
+One row is one shared **pool**, not one model. Several models, sometimes across
+different families, share a single meter with one percentage and one reset time.
+That is why mixed pools are labelled `Claude + GPT-OSS · 3 models` instead of
+three near-identical rows.
+
+Bars go green above 5%, yellow at or below 5%, red at zero. A pool that Google
+returns no percentage for draws as a hairline labelled *unmetered* — deliberately
+never `0%`, because no data is not the same as none left.
+
+The summary bar above the cards is the state of everything at a glance:
 
 ```
 2 low · 1 unmetered · 5 of 6 metered · next reset 4h 12m
 ```
 
-Cards sort low-quota accounts to the top automatically and give them a yellow
-left edge. Status colours mean exactly one thing each:
-
-| Colour | Meaning |
-| --- | --- |
-| green | healthy quota |
-| yellow | at or below 5% remaining |
-| amber | Google rate-limited the account |
-| red | sign-in expired, or the fetch failed |
-
-A pool Google does not report a percentage for renders as a hairline labelled
-*unmetered*, never as `0%`. Accounts that need attention sort first in both
-orderings; the Soonest/Lowest toggle only decides what ranks below them.
-
-Full walkthrough: **[docs/using-the-app.md](docs/using-the-app.md)**
+Only `0 low` is worth reading at first. A summary with nothing wrong in it stays
+quiet.
 
 ## CLI
 
-The CLI predates the UI and is still the quickest way to check quota from a
-script. Note the `--`, without which npm eats your arguments.
-
-```bash
-npm run dev -- add              # sign in with Google
-npm run dev -- accounts         # list stored accounts
-npm run dev -- quota            # fetch one account's quota
-npm run dev -- quota --all      # every unpaused account, 3 at a time
-npm run dev -- import           # adopt accounts from the antigravity-usage CLI
-npm run dev -- remove <email>
-npm run dev -- help
-```
-
-Reference: **[docs/cli.md](docs/cli.md)**
+Not part of the released app — it exists for contributors working from source,
+and predates the UI. Normal use needs no terminal. See
+**[docs/cli.md](docs/cli.md)**.
 
 ## Development
 
@@ -109,7 +124,7 @@ Reference: **[docs/cli.md](docs/cli.md)**
 npm run dev        # Vite dev server
 npm run app:dev    # Electron against the dev server
 npm run app        # Electron against the built dist/
-npm test           # 82 tests
+npm test           # 86 tests
 npm run typecheck
 ```
 

@@ -58,8 +58,17 @@ pgrep -af antigravity-quota-tracker
 
 **`Sign-in expired` on a card**
 
-The refresh token was rejected. Click **Re-sign in** on the card. This happens
-after a password change, a revoked grant, or a long period of inactivity.
+The refresh token was rejected — after a password change, a revoked grant, or a
+long period of inactivity. The app pauses the account automatically, because
+retrying a dead token can never succeed.
+
+Click **Re-sign in** on the card. It reopens your browser for a fresh sign-in;
+choose the **same** Google account and the card updates in place, keeping its
+quota history. Signing in with a *different* account adds a second card instead,
+so if you end up with two, remove the one you did not mean to add.
+
+Note that **Refresh** is not a substitute here. It retries the same rejected
+token and will simply fail again.
 
 **Sign-in opens a browser but the app never picks it up**
 

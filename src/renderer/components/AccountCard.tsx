@@ -20,7 +20,7 @@ function Action({
   disabled?: boolean
 }): JSX.Element {
   return (
-    <button
+    <button                  
       type="button"
       onClick={onClick}
       title={title}
@@ -41,6 +41,7 @@ export function AccountCard({
   now,
   busy,
   onRefresh,
+  onReSignIn,
   onPause,
   onRemove,
 }: {
@@ -48,6 +49,7 @@ export function AccountCard({
   now: number
   busy: boolean
   onRefresh: () => void
+  onReSignIn: () => void
   onPause: (paused: boolean) => void
   onRemove: () => void
 }): JSX.Element {
@@ -102,7 +104,8 @@ export function AccountCard({
         {account.status === 'auth_error' && (
           <button
             type="button"
-            onClick={onRefresh}
+            onClick={onReSignIn}
+            title={`Sign in again as ${account.email}`}
             className="mr-auto bg-critical px-2.5 py-1 text-meta font-medium text-white transition-opacity duration-150 hover:opacity-85 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-critical"
           >
             Re-sign in

@@ -62,11 +62,36 @@ rm -rf squashfs-root
 
 ### First run
 
-Click **Add account** in the top right. Your browser opens for Google sign-in.
-Only the refresh token is stored, encrypted.
+The app opens on a single window with a summary bar and one card per account.
+With no accounts yet, the middle of the window has a single button.
+
+**Click Add your first account.** Your default browser opens at Google's sign-in
+page. Choose an account and approve the permissions; the app is listening on a
+local port while this happens, so the card appears the moment you approve. If
+the browser says the page can be closed, that is normal.
+
+Only the refresh token is stored, encrypted with your OS keychain. No password
+is ever seen by the app.
+
+To add more accounts, click **Add account** in the top right and repeat. The same
+Google account can only be added once per machine; signing in again with an
+account you already track updates it in place rather than duplicating it.
+
+Each account is polled about every four minutes on its own schedule, with a
+random offset so a dozen accounts do not all hit Google at the same instant.
+Three accounts are fetched concurrently and a failing account backs off on its
+own, so one broken account never affects the rest. You can leave the window
+closed; polling resumes when you reopen it.
 
 Accounts are per-machine and live in `~/.antigravity-quota-tracker/`. Upgrading
 the app never touches them, so reinstalling is always safe.
+
+What to do next:
+
+- To pause, refresh, re-sign in or remove an account, see
+  **[using-the-app.md](using-the-app.md)**.
+- If sign-in did not complete or a card reads `Sign-in expired`, see
+  **[troubleshooting.md](troubleshooting.md)**.
 
 ## Option B: build it yourself
 
@@ -102,17 +127,22 @@ local check after `npm run build`.
 
 ## Verifying it works
 
-The dashboard should show one card per signed-in account. If a card reads
-`error`, open the terminal that launched the app: the reason is logged with a
-`[store]` or scheduler prefix, and [troubleshooting.md](troubleshooting.md)
-maps common messages to fixes.
+The dashboard should show one card per signed-in account, each with at least one
+quota pool row. Two things confirm data is live rather than cached:
 
-To check the CLI path independently of the UI:
+- the summary bar shows `X of Y metered`, where X counts accounts Google returns
+  a real percentage for
+- each card shows how long ago it was fetched
 
-```bash
-npm run dev -- accounts
-npm run dev -- quota --all
-```
+A card reading `Failed`, `Throttled`, or `Sign-in expired` is reporting a real
+problem, not a broken install. The red box on the card carries the underlying
+message, and [troubleshooting.md](troubleshooting.md) maps those to fixes. If you
+are running from source, the reason is also logged to the terminal that launched
+the app with a `[store]` or scheduler prefix.
+
+Not every account will show a percentage. Google provisions meters per account,
+so some legitimately report only a reset time and appear as `unmetered`. That is
+explained in [api-findings.md](api-findings.md).
 
 ## Requirements and limits
 

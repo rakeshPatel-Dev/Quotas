@@ -101,6 +101,7 @@ export function App(): JSX.Element {
                 now={now}
                 busy={busy}
                 onRefresh={() => void refresh(account.id)}
+                onReSignIn={() => void addAccount()}
                 onPause={(paused) => void setPaused(account.id, paused)}
                 onRemove={() => void removeAccount(account.id)}
               />
