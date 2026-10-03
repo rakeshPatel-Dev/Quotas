@@ -103,6 +103,40 @@ They exist because electron-builder refuses to build a `.deb` without a
 maintainer address. `homepage` and `repository` now point at
 `rakeshPatel-Dev/Quotas`; `author.email` is still `patel@localhost`.
 
+### The bundled OAuth client
+
+A released build must be able to sign in without the user configuring anything,
+so the binary ships an OAuth client from `src/main/oauthClient.ts`. Desktop
+("installed application") clients cannot keep a secret — Google treats the
+loopback redirect as the boundary — which is why every Electron and browser app
+embeds one.
+
+Resolution order at startup:
+
+1. `ANTIGRAVITY_OAUTH_CLIENT_ID` / `..._SECRET`, including from `.env`
+2. the client in `src/main/oauthClient.ts`
+
+**Before tagging a release, that file must contain a working client.** It ships
+with `REPLACE_WITH_YOUR_OWN_*` placeholders, and `assertOAuthConfigured()` throws
+on them, so an unconfigured build reports the real problem instead of failing at
+Google's consent screen with `invalid_client`.
+
+To issue one:
+
+1. Google Cloud Console → create or pick a project.
+2. Enable the **Cloud Code API** (`cloudcode.googleapis.com`).
+3. Credentials → **Create credentials** → **OAuth client ID**.
+4. Application type must be **Desktop app**. A Web application client will not
+   work: Google rejects loopback redirects for that type.
+5. Add the scopes listed in `oauthConfig.scopes`. Desktop clients need no
+   registered redirect URI — any loopback port is allowed.
+6. Paste the id and secret into `BUNDLED_OAUTH_CLIENT` in
+   `src/main/oauthClient.ts`.
+
+That client is shared by everyone who installs the app and lives in a public
+repository. Its quota and its revocation are yours to own; rotate it from the
+Cloud Console if it leaks. `npm test` covers the placeholder guard.
+
 Nothing is signed or notarized. macOS builds want a Developer ID certificate and
 `notarize` before distribution; Windows builds want an Authenticode certificate
 or SmartScreen will keep warning users. See the security notes in

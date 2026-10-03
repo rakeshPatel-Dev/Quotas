@@ -1,3 +1,4 @@
+import { assertOAuthConfigured } from './config.js'
 import { startOAuthFlow, type OAuthFlowOptions } from './auth/oauthFlow.js'
 import type { TokenManager } from './auth/tokenManager.js'
 import type { QuotaService } from './quota/service.js'
@@ -29,6 +30,10 @@ export async function addAccount(
   deps: AddAccountDeps,
   options: OAuthFlowOptions = {},
 ): Promise<AddAccountResult> {
+  // Fail before the browser opens, so the cause is a real message rather than an
+  // `invalid_client` error on Google's consent screen.
+  assertOAuthConfigured()
+
   const result = await startOAuthFlow(options)
 
   const existing = deps.store.list().find((account) => account.id === result.id)

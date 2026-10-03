@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { BUNDLED_OAUTH_CLIENT, isBundledClientUnconfigured } from './oauthClient.js'
 
 /** Load environment variables from .env file if present. */
 function loadDotenv(): void {
@@ -40,16 +41,29 @@ loadDotenv()
 /**
  * OAuth + Cloud Code endpoints.
  *
- * Credentials are loaded from environment variables (.env file supported):
- *   ANTIGRAVITY_OAUTH_CLIENT_ID
- *   ANTIGRAVITY_OAUTH_CLIENT_SECRET
+ * Credentials resolve in this order:
+ *   1. ANTIGRAVITY_OAUTH_CLIENT_ID / _SECRET, including from a .env file
+ *   2. the client bundled into the binary (see oauthClient.ts)
  *
- * Your client must be an "installed application" and must have the same scopes
- * plus a loopback redirect URI registered.
+ * A released build must ship a working client, so `assertOAuthConfigured` turns a
+ * blank pair into one actionable error instead of Google's `invalid_client`.
  */
+function resolveOAuthClient(): { clientId: string; clientSecret: string } {
+  const fromEnv = {
+    clientId: process.env.ANTIGRAVITY_OAUTH_CLIENT_ID ?? '',
+    clientSecret: process.env.ANTIGRAVITY_OAUTH_CLIENT_SECRET ?? '',
+  }
+  if (fromEnv.clientId && fromEnv.clientSecret) return fromEnv
+  if (isBundledClientUnconfigured(BUNDLED_OAUTH_CLIENT)) return fromEnv
+  return {
+    clientId: BUNDLED_OAUTH_CLIENT.clientId,
+    clientSecret: BUNDLED_OAUTH_CLIENT.clientSecret,
+  }
+}
+
 export const oauthConfig = {
-  clientId: process.env.ANTIGRAVITY_OAUTH_CLIENT_ID ?? '',
-  clientSecret: process.env.ANTIGRAVITY_OAUTH_CLIENT_SECRET ?? '',
+  clientId: resolveOAuthClient().clientId,
+  clientSecret: resolveOAuthClient().clientSecret,
   authUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
   tokenUrl: 'https://oauth2.googleapis.com/token',
   userInfoUrl: 'https://www.googleapis.com/oauth2/v2/userinfo',
@@ -59,6 +73,26 @@ export const oauthConfig = {
     'https://www.googleapis.com/auth/cloud-platform',
   ],
 } as const
+
+/**
+ * Fails loudly before any network call, so a misconfigured build reports what is
+ * actually wrong instead of surfacing Google's `invalid_client` on the consent
+ * screen, which looks like a Google outage.
+ */
+export function assertOAuthConfigured(): void {
+  if (oauthConfig.clientId && oauthConfig.clientSecret) return
+  throw new Error(
+    [
+      'No OAuth client is configured, so sign-in cannot start.',
+      '',
+      'If you are running from source: set ANTIGRAVITY_OAUTH_CLIENT_ID and',
+      'ANTIGRAVITY_OAUTH_CLIENT_SECRET in .env (see .env.example).',
+      '',
+      'If you installed a downloaded build: it was packaged without a client.',
+      'See docs/building.md for how the bundled client is configured.',
+    ].join('\n'),
+  )
+}
 
 export const cloudCodeConfig = {
   baseUrl: 'https://cloudcode-pa.googleapis.com',
